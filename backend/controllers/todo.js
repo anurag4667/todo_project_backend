@@ -108,4 +108,23 @@ const deletetodo = async (req,res) =>{
         })
     }
 }
-export {createtodo , edittodo , deletetodo};
+
+const getmytodos = async(req,res) =>{
+    try {
+        
+        const user = await User.findById(req.user._id);
+        const todos = await Todo.find({
+            _id: { $in: user.todos }
+          });
+        res.status(200).json({
+            success : true,
+            todos
+        })
+    } catch (error) {
+        res.status(500).json({
+            success : false,
+            message : error.message
+        })
+    }
+}
+export {createtodo , edittodo , deletetodo,getmytodos};
