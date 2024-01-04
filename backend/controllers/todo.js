@@ -52,6 +52,7 @@ const edittodo = async (req,res) =>{
         if(title)todo.title = title;
         if(description)todo.description = description;
         await todo.save();
+        
 
         res.status(200).json({
             success : true,
@@ -65,4 +66,46 @@ const edittodo = async (req,res) =>{
         })
     }
 }
-export {createtodo , edittodo};
+
+const deletetodo = async (req,res) =>{
+    try {
+
+        const {title,description} = req.body;
+
+        const todo = await Todo.findById(req.params.id);
+        const user = await User.findById(req.user._id);
+
+        if(!todo){
+            return res.status(404).json({
+                success : false,
+                message : "todo not found"
+            })
+        }
+
+        if(!user.todos.includes(todo._id)){
+            return res.status(401).json({
+                success : false,
+                message : "unauthorized"
+            })
+        }
+
+        
+
+        const ind = user.todos.indexOf(req.params.id);
+        user.todos.splice(ind,1);
+        await user.save();
+        await todo.deleteOne();
+
+        res.status(200).json({
+            success : true,
+            message : "todo deleted",
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            success : false,
+            message : error.message
+        })
+    }
+}
+export {createtodo , edittodo , deletetodo};
